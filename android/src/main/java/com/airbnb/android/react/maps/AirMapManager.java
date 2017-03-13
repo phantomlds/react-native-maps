@@ -302,4 +302,13 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
                 .receiveEvent(view.getId(), name, data);
     }
 
+
+
+    @Override
+    public void onDropViewInstance(AirMapView view) {
+        view.doDestroy();
+        reactContext = null;
+        super.onDropViewInstance(view);
+    }
+
 }
