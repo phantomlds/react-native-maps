@@ -75,6 +75,11 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
     view.setRegion(region);
   }
 
+  @ReactProp(name = "initialRegion")
+  public void setInitialRegion(AirMapView view, ReadableMap initialRegion) {
+    view.setInitialRegion(initialRegion);
+  }
+
   @ReactProp(name = "mapType")
   public void setMapType(AirMapView view, @Nullable String mapType) {
     int typeId = MAP_TYPES.get(mapType);
@@ -176,6 +181,16 @@ public class AirMapManager extends ViewGroupManager<AirMapView> {
   @ReactProp(name = "pitchEnabled", defaultBoolean = false)
   public void setPitchEnabled(AirMapView view, boolean pitchEnabled) {
     view.map.getUiSettings().setTiltGesturesEnabled(pitchEnabled);
+  }
+
+  @ReactProp(name = "minZoomLevel")
+  public void setMinZoomLevel(AirMapView view, float minZoomLevel) {
+    view.map.setMinZoomPreference(minZoomLevel);
+  }
+
+  @ReactProp(name = "maxZoomLevel")
+  public void setMaxZoomLevel(AirMapView view, float maxZoomLevel) {
+    view.map.setMaxZoomPreference(maxZoomLevel);
   }
 
   @Override

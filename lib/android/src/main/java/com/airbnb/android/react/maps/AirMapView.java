@@ -70,6 +70,7 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
   private boolean handlePanDrag = false;
   private boolean moveOnMarkerPress = true;
   private boolean cacheEnabled = false;
+  private boolean initialRegionSet = false;
 
   private static final String[] PERMISSIONS = new String[]{
       "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_COARSE_LOCATION"};
@@ -304,7 +305,9 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
           map.setMyLocationEnabled(showUserLocation);
         }
         synchronized (AirMapView.this) {
-          AirMapView.this.onResume();
+          if (!destroyed) {
+            AirMapView.this.onResume();
+          }
           paused = false;
         }
       }
@@ -356,6 +359,13 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
       paused = true;
     }
     onDestroy();
+  }
+
+  public void setInitialRegion(ReadableMap initialRegion) {
+    if (!initialRegionSet && initialRegion != null) {
+      setRegion(initialRegion);
+      initialRegionSet = true;
+    }
   }
 
   public void setRegion(ReadableMap region) {
@@ -718,16 +728,18 @@ public class AirMapView extends MapView implements GoogleMap.InfoWindowAdapter,
     @Override
     public void run() {
 
-      Projection projection = map.getProjection();
-      VisibleRegion region = (projection != null) ? projection.getVisibleRegion() : null;
-      LatLngBounds bounds = (region != null) ? region.latLngBounds : null;
+      if (map != null) {
+        Projection projection = map.getProjection();
+        VisibleRegion region = (projection != null) ? projection.getVisibleRegion() : null;
+        LatLngBounds bounds = (region != null) ? region.latLngBounds : null;
 
-      if ((bounds != null) &&
-          (lastBoundsEmitted == null ||
-              LatLngBoundsUtils.BoundsAreDifferent(bounds, lastBoundsEmitted))) {
-        LatLng center = map.getCameraPosition().target;
-        lastBoundsEmitted = bounds;
-        eventDispatcher.dispatchEvent(new RegionChangeEvent(getId(), bounds, center, true));
+        if ((bounds != null) &&
+            (lastBoundsEmitted == null ||
+                LatLngBoundsUtils.BoundsAreDifferent(bounds, lastBoundsEmitted))) {
+          LatLng center = map.getCameraPosition().target;
+          lastBoundsEmitted = bounds;
+          eventDispatcher.dispatchEvent(new RegionChangeEvent(getId(), bounds, center, true));
+        }
       }
 
       timerHandler.postDelayed(this, 100);
